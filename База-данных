@@ -1,0 +1,467 @@
+#include <iostream>
+#include <iomanip>
+#include <Windows.h>
+#include<cstring>
+#include<fstream>
+#include <clocale>
+using namespace std;
+struct Student
+{
+    char name[255];
+    char surname[255];
+    int course;
+    int year;
+    int marks[6];
+};
+int n;
+
+Student* group = new Student[1000];
+void print_menu() {
+    cout << "Меню: \n";
+    cout << "0. Выход\n";
+    cout << "1. Ввести данные\n";
+    cout << "2. Вывод таблицы студентов\n";
+    cout << "3. Вывод фамилий, оценок, курса студентов, имена которых начинаются с буквы 'А'\n";
+    cout << "4. Добавить нового студента\n";
+    cout << "5. Изменить данные\n";
+    cout << "6. Удалить данные\n";
+    cout << "7. Сортировка\n";
+    cout << "8. Загрузка базы данных из текстового файла\n";
+    cout << "9. Загрузка базы данных из бинарного файла\n";
+    cout << "10. Выгрузка базы данных в текстовый файл\n";
+    cout << "11. Перевод содержимого текстового файла в бинарный\n";
+}
+void table_header() {
+    cout << "+---+-------------------------------+---------------------+----+----+---------+---------+---------+---------+---------+---------+\n";
+    cout << "| № |            Фамилия            |         Имя         |Год |Курс|Предмет 1|Предмет 2|Предмет 3|Предмет 4|Предмет 5|Предмет 6|\n";
+    cout << "+---+-------------------------------+---------------------+----+----+---------+---------+---------+---------+---------+---------+\n";
+}
+void table_student(int i) {
+    cout << left << "|" << setw(3) << (i + 1) << "|";
+    cout << left << setw(31) << group[i].surname << "|";
+    cout << left << setw(21) << group[i].name << "|";
+    cout << left << setw(3) << group[i].year << "|";
+    cout << left << setw(4) << group[i].course << "|";
+    for (int j = 0; j < 6; j++)
+    {
+        cout << setw(9) << group[i].marks[j] << "|";
+    }
+    cout << "\n";
+    cout << "+---+-------------------------------+---------------------+----+----+---------+---------+---------+---------+---------+---------+\n";
+}
+void input_student(int n) {
+
+    int year, course;
+    for (int i{}; i < n; i++)
+    {
+        cout << "Введите фамилию: ";
+        cin >> group[i].surname;
+        cout << "Введите имя: ";
+        cin >> group[i].name;
+        cout << "Введите курс: ";
+        do
+        {
+            cin >> course;
+            if ((course < 1) || (course > 9))
+                cout << "Введите однозначное число\n";
+        } while ((course < 1) || (course > 9));
+        group[i].course = course;
+        cout << "Введите год поступления: ";
+        do
+        {
+            cin >> year;
+            if ((year < 1000) || (year > 9999))
+                cout << "Введите четырёхзначное число \n";
+        } while ((year < 1000) || (year > 9999));
+        group[i].year = year;
+        cout << "Введите шесть оценок:\n";
+        for (int j = 0; j < 6; j++)
+        {
+            cout << "Введите " << j + 1 << " оценку:";
+            cin >> group[i].marks[j];
+        }
+    }
+}
+void request(int& n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        if (group[i].name[0] == 'А')
+        {
+            cout << "Данные " << i + 1 << "-го студента\n";
+            cout << "Фамилия: ";
+            cout << group[i].surname << "\n";
+            cout << "Курс: ";
+            cout << group[i].course << "\n";
+            cout << "Оценки:\n";
+            for (int j = 0; j < 6; j++)
+            {
+                cout << group[i].marks[j] << " ";
+            }
+            cout << "\n";
+        }
+    }
+}
+bool new_input(int& n)
+{
+    int year, course;
+    cout << "Введите фамилию: ";
+    cin >> group[n - 1].surname;
+    cout << "Введите имя: ";
+    cin >> group[n - 1].name;
+    cout << "Введите курс: ";
+    do
+    {
+        cin >> course;
+        if ((course < 1) || (course > 9))
+            cout << "Введите однозначное число!\n";
+    } while ((course < 1) || (course > 9));
+    group[n - 1].course = course;
+    cout << "Введите год поступления: ";
+    do
+    {
+        cin >> year;
+        if ((year < 1000) || (year > 9999))
+            cout << "Введите четырёхзначное число! \n";
+    } while ((year < 1000) || (year > 9999));
+    group[n - 1].year = year;
+    cout << "Введите шесть оценок:\n";
+    for (int j = 0; j < 6; j++)
+    {
+        cout << "Введите " << j + 1 << " оценку:";
+        cin >> group[n - 1].marks[j];
+    }
+    return 0;
+}
+bool change(int& n)
+{
+    int z, v = 1;
+    cout << "Введите № студента\n";
+    cin >> z;
+    while (v != 0)
+    {
+        cout << "0. Выход\n";
+        cout << "1. Изменить фамилию\n";
+        cout << "2. Изменить имя\n";
+        cout << "3. Изменить курс\n";
+        cout << "4. Изменить год поступления\n";
+        cout << "5. Изменить оценки\n";
+        cin >> v;
+        if (v == 0) exit;
+        if (v == 1)
+        {
+            cout << "Введите новую фамилию: ";
+            cin >> group[z - 1].surname;
+        }
+        if (v == 2)
+        {
+            cout << "Введите новое имя: ";
+            cin >> group[z - 1].name;
+        }
+        if (v == 3)
+        {
+            int course;
+            cout << "Введите новый курс: ";
+            do
+            {
+                cin >> course;
+                if ((course < 1) || (course > 9))
+                    cout << "Введите однозначное число!\n";
+            } while ((course < 1) || (course > 9));
+            group[z - 1].course = course;
+        }
+    }
+    return 0;
+}
+bool delete_s(int& n) {
+    int w;
+    cout << "Введите № студента:\n";
+    cin >> w;
+    if (n != 1)
+    {
+        for (int i = w - 1; i < n; i++)
+            group[i] = group[i + 1];
+        n--;
+    }
+    else group = NULL;
+    return 0;
+}
+bool sorting(int& n) {
+    int v2 = 1;
+    Student d;
+    while (v2 != 0)
+    {
+        cout << "0. Выход\n";
+        cout << "1. Сортировать по фамилии А-Я\n";
+        cout << "2. Сортировать по имени А-Я\n";
+        cout << "3. Сортировать по году поступления 1-9\n";
+        cout << "4. Сортировать по курсу 1-9\n";
+        cout << "5. Сортировать по фамилии Я-А\n";
+        cout << "6. Сортировать по имени Я-А\n";
+        cout << "7. Сортировать по году поступления 9-1\n";
+        cout << "8. Сортировать по курсу 9-1\n";
+        cin >> v2;
+        if (v2 == 0) exit;
+
+        if (v2 == 1)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (strcmp(group[j].surname, group[j + 1].surname) > 0)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 2)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (strcmp(group[j].name, group[j + 1].name) > 0)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 3)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (group[j].year > group[j + 1].year)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 4)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (group[j].course > group[j + 1].course)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 5)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (strcmp(group[j].surname, group[j + 1].surname) < 0)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 6)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (strcmp(group[j].name, group[j + 1].name) < 0)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 7)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (group[j].year < group[j + 1].year)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+        if (v2 == 8)
+        {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n - i - 1; j++)
+                    if (group[j].course < group[j + 1].course)
+                    {
+                        d = group[j];
+                        group[j] = group[j + 1];
+                        group[j + 1] = d;
+                    }
+        }
+    }
+    return 0;
+}
+void loading_text(int& n)
+{
+    int k = 0;
+    ifstream file;
+    file.open("Database.txt");
+    if (file.is_open())
+    {
+        while (!file.eof())
+        {
+            file >> group[k].surname;
+            file >> group[k].name;
+            file >> group[k].course;
+            file >> group[k].year;
+            file >> group[k].marks[0];
+            file >> group[k].marks[1];
+            file >> group[k].marks[2];
+            file >> group[k].marks[3];
+            file >> group[k].marks[4];
+            file >> group[k].marks[5];
+            k++;
+            n++;
+        }
+        k--;
+        n--;
+        cout << "Данные из файла загружены!" << endl;
+    }
+    else
+    {
+        cout << "Не удалось открыть файл!" << endl;
+    }
+    file.close();
+}
+void loading_bin(int& n)
+{
+    int m = 0;
+    ifstream fin("Database.bin", ios::binary | ios::in);
+    if (fin.is_open()) {
+        while (!fin.eof())
+        {
+            fin.read((char*)&group[m], sizeof(group[m]));
+            m++;
+            n++;
+        }
+        m--;
+        n--;
+    }
+    else
+    {
+        cout << "Не удалось открыть файл!" << endl;
+    }
+    fin.close();
+}
+void print_txt(int& n)
+{
+    ofstream out;
+    out.open("Database.txt");
+    if (out.is_open())
+    {
+        for (int i = 0; i < n; i++)
+        {
+            out << group[i].surname << "\n"
+                << group[i].name << "\n"
+                << group[i].course << "\n"
+                << group[i].year << "\n"
+                << group[i].marks[0] << "\n"
+                << group[i].marks[1] << "\n"
+                << group[i].marks[2] << "\n"
+                << group[i].marks[3] << "\n"
+                << group[i].marks[4] << "\n"
+                << group[i].marks[5] << "\n";
+        }
+        cout << "Данные записались!" << endl;
+    }
+    else
+    {
+        cout << "Не удалось открыть файл для записи!" << endl;
+    }
+    out.close();
+}
+void text_to_bin(int& n) {
+    print_txt(n);
+    ofstream fout("Database.bin", ios::binary | ios::out);
+    if (fout.is_open())
+    {
+        for (int i = 0; i < n; i++)
+        {
+            fout.write((char*)&group[i], sizeof(group[i]));
+        }
+    }
+    else
+    {
+        cout << "Не удалось открыть файл!" << endl;
+    }
+    fout.close();
+}
+int main()
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    bool start = true;
+    int rez = 0;
+    int z = 1;
+    while (start)
+    {
+        print_menu();
+        cout << "Выберите действие: ";
+        cin >> rez;
+        switch (rez) {
+        case 0:
+            start = false;
+            break;
+        case 1:
+            cout << "Введите количество студентов: ";
+            cin >> n;
+            if (cin.fail()) {
+                cout << "Ошибка: вы ввели не число!" << endl;
+                return 1;
+            }
+            if (n <= 0) {
+                cout << "Должен быть хотя бы один студент!" << endl;
+                break;
+            }
+            input_student(n);
+            break;
+        case 2:
+            if (n > 0) {
+                table_header();
+                for (int i = 0; i < n; ++i) {
+                    table_student(i);
+                }
+            }
+            else cout << "Отсутствуют данные для вывода!\n";
+            break;
+        case 3:
+            if (group)
+            {
+                request(n);
+                cout << "Отсутствуют данные для вывода\n";
+            }
+            break;
+        case 4:
+            n += 1;
+            new_input(n);
+            break;
+        case 5:
+            change(n);
+            break;
+        case 6:
+            delete_s(n);
+            break;
+        case 7:
+            sorting(n);
+            break;
+        case 8:
+            loading_text(n);
+            break;
+        case 9:
+            loading_bin(n);
+            break;
+        case 10:
+            print_txt(n);
+            break;
+        case 11:
+            if (n > 0)
+            {
+                text_to_bin(n);
+            }
+            break;
+        }
+    }
+}
